@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UMAR — Beyond Reality</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;600&family=Hanken+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#05060f;--tx:#eef2ff;--mut:#9aa3c7;--cy:#3de8ff;--vi:#9b6bff;--go:#ffc46b;--sf:rgba(14,16,40,.82);--ln:rgba(140,160,255,.25);--ease:cubic-bezier(.2,.7,.2,1);--disp:'Unbounded','Trebuchet MS',sans-serif;--body:'Hanken Grotesk',system-ui,sans-serif}
+@media(prefers-color-scheme:dark){:root{color-scheme:dark}}
+*{box-sizing:border-box;margin:0}
+html,body{background:var(--bg);color:var(--tx);font-family:var(--body)}#journey{height:1000vh;pointer-events:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
+button,a{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--cy);outline-offset:3px}
+.hud{position:fixed;z-index:3;padding:calc(14px + env(safe-area-inset-top,0px)) 16px 0}
+#brand{left:0;font:600 13px var(--disp);letter-spacing:.14em}
+#brand small{display:block;font:400 13px var(--body);letter-spacing:0;color:var(--mut);margin-top:4px}
+#tools{right:0;display:flex;gap:8px}
+.btn{background:var(--sf);border:1px solid var(--ln);border-radius:999px;padding:10px 16px;min-height:44px;cursor:pointer;transition:border-color .2s,background .2s}
+.btn:hover{border-color:var(--cy)}
+.btn[aria-pressed=true]{border-color:var(--go);color:var(--go)}
+#intro{position:fixed;inset:0;z-index:2;display:grid;place-content:center;text-align:center;padding:24px;pointer-events:none;background:radial-gradient(circle,rgba(5,6,15,.7),transparent 70%);opacity:0}
+#intro h1{font:300 clamp(40px,11vw,128px) var(--disp);letter-spacing:.06em;background:linear-gradient(90deg,var(--cy),#fff,var(--vi),var(--go));-webkit-background-clip:text;background-clip:text;color:transparent}
+#intro h2{font:600 clamp(12px,2.2vw,20px) var(--disp);margin-top:18px;letter-spacing:.08em}
+#intro p{max-width:520px;margin:14px auto 0;color:var(--mut);line-height:1.5}
+@keyframes fade{0%{opacity:0}15%{opacity:1}80%{opacity:1}100%{opacity:0;visibility:hidden}}body.arrive #intro{animation:fade 5s ease forwards}
+@media(prefers-reduced-motion:reduce){#intro{animation-delay:1.5s;animation-duration:.1s}}
+#tip{position:fixed;z-index:3;pointer-events:none;padding:6px 12px;border-radius:999px;background:var(--sf);border:1px solid var(--cy);font-size:14px;transform:translate(-50%,-150%);opacity:0;transition:opacity .15s;white-space:nowrap}
+nav{position:fixed;z-index:3;left:0;right:0;bottom:0;padding:10px 12px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;background:linear-gradient(transparent,rgba(5,6,15,.9))}
+nav .btn{flex:none;padding:8px 14px;font-size:14px;display:flex;align-items:center;gap:8px}
+nav i{width:10px;height:10px;border-radius:50%;background:var(--c)}
+nav .btn[aria-pressed=true]{background:rgba(255,196,107,.12)}
+#panel{position:fixed;z-index:4;right:2vw;top:50%;transform:translate(110%,-50%);width:min(450px,40vw);max-height:78vh;overflow:auto;background:var(--sf);backdrop-filter:blur(10px);border:1px solid var(--ln);border-radius:20px;padding:24px;transition:transform .5s var(--ease)}
+#panel.open{transform:translate(0,-50%)}
+#panel .viz{height:110px;border-radius:12px;margin-bottom:16px;position:relative;border:1px solid var(--ln)}
+#panel .viz span{position:absolute;left:10px;bottom:8px;font-size:12px;color:var(--mut)}
+#panel h3{font:600 clamp(22px,2.6vw,32px) var(--disp);line-height:1.1}
+#panel .cat{color:var(--go);margin:6px 0 14px}
+#panel h4{font-size:14px;color:var(--cy);margin:16px 0 6px}
+#panel p,#panel li{line-height:1.55;font-size:15px;color:#d5dcf5}
+#panel ul{padding-left:18px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.cta{display:inline-flex;align-items:center;min-height:46px;padding:0 20px;border-radius:999px;text-decoration:none;font-weight:600}
+a.cta{background:linear-gradient(90deg,var(--cy),var(--vi));color:#06081a}
+span.cta{border:1px dashed var(--ln);color:var(--mut)}
+#close{position:absolute;top:12px;right:12px;width:44px;height:44px;padding:0}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+#nogl{display:none;position:fixed;z-index:1;inset:0;place-content:center;text-align:center;padding:24px;color:var(--mut)}
+@media(max-width:760px){
+#panel{right:0;left:0;width:auto;top:auto;bottom:0;max-height:52dvh;border-radius:20px 20px 0 0;transform:translateY(110%);padding:18px 16px 84px}
+#panel.open{transform:none}
+#panel .viz{height:70px;margin-bottom:10px}#brand small{display:none}}
+#story{position:fixed;inset:0;z-index:2;display:grid;place-items:center;padding:24px;pointer-events:none}
+#story>*{grid-area:1/1;text-align:center;max-width:980px}
+#story button{pointer-events:auto}
+.ch{visibility:hidden;opacity:0}
+.ch .lb{color:var(--cy);margin-bottom:12px;font-size:15px}
+.ch h2{font:600 clamp(28px,6.2vw,80px)/1.05 var(--disp);text-shadow:0 2px 36px #05060f}
+#hero h1{font:300 clamp(28px,6.6vw,92px)/1.06 var(--disp);text-shadow:0 2px 36px #05060f}
+#hero p{max-width:520px;margin:16px auto 0;color:#c4cbe8;line-height:1.5}
+#story .row{justify-content:center}
+.btn.pri{background:linear-gradient(90deg,var(--cy),var(--vi));color:#06081a;border:0;font-weight:600}
+#rail{position:fixed;z-index:3;right:4px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column}
+#rail button{width:30px;height:40px;background:none;border:0;cursor:pointer;position:relative}
+#rail button::before{content:'';position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-5px;border-radius:50%;border:1.5px solid var(--mut)}
+#rail button[aria-current]::before{background:var(--cy);border-color:var(--cy);box-shadow:0 0 12px var(--cy)}
+body:not(.explore) #nav,body:not(.explore) #pause{visibility:hidden}
+body.explore #rail{display:none}
+@media(max-width:760px){#journey{height:800vh}}
+#gate{position:fixed;inset:0;z-index:9;display:grid;place-content:center;justify-items:center;gap:14px;text-align:center;padding:24px;background:rgba(3,4,10,.78);transition:opacity 1.2s ease,visibility 1.2s}
+#gate.off{opacity:0;visibility:hidden}
+#gate h2{font:600 clamp(13px,2.4vw,22px) var(--disp);letter-spacing:.1em}
+#gate p{color:var(--mut)}
+#gate .gt{font:300 clamp(40px,11vw,120px) var(--disp);letter-spacing:.08em;color:var(--tx)}
+#gate .btn:disabled{opacity:.6;cursor:progress}
+body.gated{overflow:hidden}
+body.gated #story{opacity:0}
+#story{transition:opacity 1.4s ease .4s}
+#labs{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden;transition:opacity .5s}
+#labs span{position:absolute;left:0;top:0;font-size:12px;color:#dfe6ff;text-shadow:0 1px 8px #05060f;white-space:nowrap;transition:opacity .3s}
+#tools{flex-wrap:wrap;justify-content:flex-end;max-width:64vw}
+#cue{position:fixed;z-index:2;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:grid;justify-items:center;gap:8px;font-size:13px;color:var(--mut);pointer-events:none}
+#cue span{width:1px;height:38px;background:linear-gradient(var(--cy),transparent);transform-origin:top;animation:cue 1.8s ease-in-out infinite}
+@keyframes cue{0%{transform:scaleY(0)}60%{transform:scaleY(1);opacity:1}100%{transform:scaleY(1);opacity:0}}
+@media(prefers-reduced-motion:reduce){#cue span{animation:none}}
+body.gated #cue{opacity:0}
+body.nogl #qual,body.nogl #snd{display:none}
+@media(max-width:760px){#tools .btn{padding:6px 12px;font-size:13px;min-height:40px}#labs span{font-size:11px}}
+</style></head><body>
+<canvas id="c" aria-hidden="true"></canvas>
+<div id="nogl" role="status"><p>3D isn’t available on this device. Every project is still reachable from the list below.</p></div>
+<header class="hud" id="brand">UMAR<small>Curiosity beyond limits</small></header>
+<div class="hud" id="tools"><button class="btn" id="top">Back to beginning</button><button class="btn" id="qual">Visual quality</button><button class="btn" id="snd" aria-pressed="false">Sound off</button><button class="btn" id="pause" aria-pressed="false">Pause motion</button></div>
+<section id="intro" aria-label="Introduction"><h1>UMAR</h1><h2>ONE PERSON. MANY DIMENSIONS. INFINITE CURIOSITY.</h2><p>Every world reveals a different side of me — my roots, creativity, interests, experiments and the future I am working toward.</p></section>
+<section id="gate" aria-label="Welcome"><p class="gt">UMAR</p><h2>BEYOND THE ORDINARY</h2><p>One curious mind. Ten dimensions. One journey.</p><div class="row"><button class="btn pri" id="enter" disabled>Preparing the universe…</button><button class="btn" id="skip">Skip intro</button></div></section>
+<div id="cue" aria-hidden="true"><span></span>Scroll to explore</div>
+<main id="journey"></main>
+<div id="story">
+<section id="hero"><h1>ONE PERSON.<br>MANY DIMENSIONS.</h1><p>Meet the person behind the ideas — a young creator from Pakistan exploring technology, design and creativity.</p><div class="row"><button class="btn pri" data-go="0">Explore my world</button><button class="btn" data-go="8">Discover who I am</button></div></section>
+<section class="ch"><p class="lb">My Beginning</p><h2>Every journey starts with curiosity.</h2></section>
+<section class="ch"><p class="lb">The Creator</p><h2>I turn ideas into digital experiences.</h2></section>
+<section class="ch"><p class="lb">The Developer</p><h2>Building for the web, one idea at a time.</h2></section>
+<section class="ch"><p class="lb">The AI Explorer</p><h2>Exploring what intelligent tools can make possible.</h2></section>
+<section class="ch"><p class="lb">The 3D Dreamer</p><h2>I love immersive worlds, motion and visual depth.</h2></section>
+<section class="ch"><p class="lb">The Learner</p><h2>Learning, experimenting and improving every day.</h2></section>
+<section class="ch"><p class="lb">Beyond Borders</p><h2>Curious about people, cultures and languages around the world.</h2></section>
+<section class="ch"><p class="lb">The Future</p><h2>This is only one chapter.<br>There is much more to create.</h2><div class="row"><button class="btn pri" data-go="8">Explore my universe</button></div></section>
+</div>
+<div id="rail" role="group" aria-label="Chapters"><button data-go="0" aria-label="My Beginning" title="My Beginning"></button><button data-go="1" aria-label="The Creator" title="The Creator"></button><button data-go="2" aria-label="The Developer" title="The Developer"></button><button data-go="3" aria-label="The AI Explorer" title="The AI Explorer"></button><button data-go="4" aria-label="The 3D Dreamer" title="The 3D Dreamer"></button><button data-go="5" aria-label="The Learner" title="The Learner"></button><button data-go="6" aria-label="Beyond Borders" title="Beyond Borders"></button><button data-go="7" aria-label="The Future" title="The Future"></button><button data-go="8" aria-label="About Umar" title="About Umar"></button></div>
+<div id="tip" aria-hidden="true"></div>
+<aside id="panel" aria-label="About Umar" aria-live="polite"></aside>
+<nav id="nav" aria-label="Projects"></nav>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ===== Central project config: edit here. Leave url "" until a real site exists. ===== */
+const PROJECTS=[
+{id:'origin',name:'PAKISTAN',cat:'My roots',c:['#ff8fb1','#fff1dc'],t:'land',ring:'#f5d3a8',moon:'#7b4a32',r:1.9,
+ desc:'I’m Umar, from Pakistan. This is where my journey begins, with curiosity, big ideas and a strong interest in technology and creativity.',
+ goal:'Stay curious, keep learning and build something meaningful.',feat:['From Pakistan','A curious and creative mindset','Always exploring new ideas']},
+{id:'creator',name:'CREATIVE MIND',cat:'Ideas and imagination',c:['#1b2a6b','#3de8ff'],t:'grid',ring:0,moon:'#9b6bff',r:1.9,
+ desc:'I enjoy imagining digital experiences and finding interesting ways to present ideas. I like designs that feel distinctive, polished and memorable.',
+ goal:'Turn imagination into experiences people can explore.',feat:['Creative concepts','Visual storytelling','Modern digital experiences']},
+{id:'webdev',name:'WEB DEVELOPER',cat:'Building for the web',c:['#8d97ad','#eef2ff'],t:'bands',ring:'#cfd6e6',moon:0,r:1.7,
+ desc:'I’m learning and creating with web technologies, especially HTML, CSS and AI-assisted development. I enjoy turning a blank page into an interactive website.',
+ goal:'Keep improving my craft while making websites useful and engaging.',feat:['HTML and CSS','Frontend experiments','Responsive web design']},
+{id:'ai',name:'AI EXPLORER',cat:'Curiosity about intelligent tools',c:['#b8341c','#ff9a3d'],t:'streak',ring:0,moon:0,r:1.8,
+ desc:'AI is one of my biggest interests. I experiment with AI tools and explore ideas for assistants, creative workflows and helpful digital products.',
+ goal:'Explore AI thoughtfully and understand what is actually possible.',feat:['AI-assisted creation','Assistant concepts','Learning through experiments']},
+{id:'3d',name:'3D DREAMER',cat:'Depth, motion and atmosphere',c:['#7a5cff','#7fd7ff'],t:'crystal',ring:0,moon:0,r:2.1,
+ desc:'I’m fascinated by 3D visuals, portals, particles, parallax and immersive environments. I want digital experiences to feel like worlds, not just flat pages.',
+ goal:'Use motion and depth with purpose, while keeping experiences usable.',feat:['3D web experiments','Parallax and motion','Visual effects and atmosphere']},
+{id:'builder',name:'THE BUILDER',cat:'From idea to experiment',c:['#0f1a16','#35ff8a'],t:'grid',ring:0,moon:0,r:1.6,
+ desc:'I like exploring ideas for websites, apps and creative tools. I enjoy breaking a big idea into smaller parts and testing what can be built.',
+ goal:'Make progress through practical experiments, not just big promises.',feat:['Website and app concepts','Prototyping','Testing and improving']},
+{id:'learner',name:'ALWAYS LEARNING',cat:'The work in progress',c:['#10204d','#6aa8ff'],t:'bands',ring:'#6aa8ff',moon:0,r:1.8,
+ desc:'I’m still learning, and that is part of the journey. Every project teaches me something new about design, code, problem-solving and attention to detail.',
+ goal:'Keep learning step by step and be honest about what is finished and what is still a concept.',feat:['Growing frontend skills','Learning UI and UX','Improving through feedback']},
+{id:'culture',name:'GLOBAL CURIOSITY',cat:'People, languages and cultures',c:['#ff3d9a','#ffd23d'],t:'pixel',ring:0,moon:0,r:1.7,
+ desc:'I’m interested in Japanese and Korean culture and enjoy connecting with people from different places. Learning about other perspectives makes the world feel bigger.',
+ goal:'Stay respectful, open-minded and curious about the world.',feat:['Interest in Japan','Interest in Korea','Cross-cultural conversations']},
+{id:'future',name:'FUTURE VISION',cat:'A long road ahead',c:['#2aa7a0','#8fe0ff'],t:'bands',ring:'#8fe0ff',moon:0,r:1.9,
+ desc:'I have big ambitions for the future: creating better digital experiences, growing my skills and exploring opportunities beyond my current horizon.',
+ goal:'Build a strong foundation, keep creating and let progress speak for itself.',feat:['Creative technology','Independent projects','Long-term growth']},
+{id:'interests',name:'OFF THE SCREEN',cat:'The person beyond technology',c:['#1a0f3d','#b36bff'],t:'crystal',ring:'#3de8ff',moon:'#3de8ff',r:2.2,
+ desc:'Outside building things, I enjoy games, creative media and exploring new ideas. There is always something new that catches my curiosity.',
+ goal:'Keep a balance between creating, learning and enjoying the things that inspire me.',feat:['Gaming and storytelling','Creative media','New ideas and inspiration']}
+].map((p,i)=>({status:'preview',url:'',features:[],technology:[],plannedFeatures:p.feat,orbitalDistance:13+i*4.7,planetScale:1,...p,r:p.r*(p.planetScale||1)}));
+const SUN={name:'THE CREATIVE CORE',cat:'The person behind the worlds',c:['#ffc46b','#ff7a3d'],desc:'About Umar is the origin of every project here. This universe holds ten different digital creations, each one a concept world you can select, read about and, once a real website exists, open in its own tab.',goal:'Choose a world to discover a different side of me.',feat:[],status:'Studio overview',url:''};
+const validUrl=u=>{try{const x=new URL(u);return x.protocol==='https:'||x.protocol==='http:'}catch(e){return false}};
+const ST={preview:'Personal profile',dev:'In development',soon:'Coming soon',live:'Live'},stat=p=>p.status==='live'?(validUrl(p.url)?'Live':'Personal profile'):(ST[p.status]||p.status);
+
+/* ===== UI ===== */
+const $=s=>document.querySelector(s),panel=$('#panel'),nav=$('#nav'),tip=$('#tip');
+const RM=matchMedia('(prefers-reduced-motion:reduce)').matches,N=PROJECTS.length;
+let sel=-1,paused=RM,lastBtn=null;
+PROJECTS.forEach((p,i)=>{const b=document.createElement('button');b.className='btn';b.style.setProperty('--c',p.c[0]===p.c[0]?p.c[1]:p.c[0]);b.innerHTML='<i></i>'+p.name;b.setAttribute('aria-pressed','false');b.onclick=()=>select(i);nav.appendChild(b)});
+const chips=[...nav.children];
+function esc(s){return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))}
+function select(i){
+ sel=i;const p=i===N?SUN:PROJECTS[i];lastBtn=chips[i]||null;
+ chips.forEach((b,k)=>b.setAttribute('aria-pressed',k===i));
+ const live=validUrl(p.url);
+ panel.innerHTML='<button class="btn" id="close" aria-label="Close and return to the solar system">✕</button>'+
+ `<div class="viz" style="background:radial-gradient(circle at 28% 35%,${p.c[1]},${p.c[0]} 55%,#05060f)"><span>Concept visual, not a screenshot</span></div>`+
+ (i<N?`<p class="cat" style="margin:0 0 4px;color:var(--mut)">Dimension ${i+1} of ${N}</p>`:'')+
+ `<h3>${p.name}</h3><p class="cat">${p.cat}</p><p>${esc(p.desc)}</p>`+
+ `<h4>What matters to me</h4><p>${esc(p.goal)}</p>`+
+ (i<N?`<h4>What I enjoy</h4>`+(p.features.length?`<ul>${p.features.map(f=>'<li>'+esc(f)+'</li>').join('')}</ul>`:'<p>None yet. This is a concept.</p>'):'')+((p.plannedFeatures||[]).length?`<h4>My interests</h4><ul>${p.plannedFeatures.map(f=>'<li>'+esc(f)+'</li>').join('')}</ul>`:'')+
+ (i<N?`<h4>My approach</h4><p>${p.technology.length?p.technology.map(esc).join(', '):'Not verified yet. It will be listed once the real stack is confirmed.'}</p>`:'')+
+ `<h4>A little more</h4><p>${stat(p)}</p>`+
+ `<div class="row">${i<N?(live?`<a class="cta" href="${p.url}" target="_blank" rel="noopener noreferrer">Open project website<span class="sr" style="position:absolute;left:-9999px"> (opens in a new tab)</span></a>`:`<span class="cta" role="note">${stat(p)}: no website yet</span>`):''}</div>`+
+ `<div class="ctl"><button class="btn" id="prev">Previous</button><button class="btn" id="next">Next</button><button class="btn" id="ret">Return to my universe</button></div>`;
+ panel.classList.add('open');panel.scrollTop=0;
+ $('#close').onclick=$('#ret').onclick=overview;$('#prev').onclick=()=>select(((sel<N?sel:0)+N-1)%N);$('#next').onclick=()=>select(((sel<N?sel:N-1)+1)%N);
+ chips[i]&&chips[i].scrollIntoView({inline:'center',block:'nearest'});
+}
+function overview(f){sel=-1;panel.classList.remove('open');chips.forEach(b=>b.setAttribute('aria-pressed','false'));if(f!==0)(lastBtn||chips[0]).focus({preventScroll:true})}
+addEventListener('keydown',e=>{if(e.key==='Escape'&&sel!==-1)overview()});
+$('#pause').onclick=e=>{paused=!paused;e.target.setAttribute('aria-pressed',paused);e.target.textContent=paused?'Resume motion':'Pause motion'};
+$('#pause').setAttribute('aria-pressed',paused);if(paused)$('#pause').textContent='Resume motion';
+
+/* ===== 3D ===== */
+/* ===== scroll journey UI: native scroll -> ScrollTrigger -> tT (0..1). Chapter i = progress i/7..(i+1)/7, 7th slice = arrival at the Omniverse ===== */
+const L=9,rail=[...document.querySelectorAll('#rail button')];let tT=0,tS=0,GLOK=true;
+const go=i=>scrollTo({top:(document.documentElement.scrollHeight-innerHeight)*(i<8?(i+.5)/L:1),behavior:RM?'auto':'smooth'});
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(+b.dataset.go));
+$('#top').onclick=()=>scrollTo({top:0,behavior:RM?'auto':'smooth'});
+/* opening gate: stars fade in behind it; Enter pushes the camera in, Skip jumps straight to scene 1. Enter unlocks after the first rendered frame (or 4s, never an endless loader) */
+const gate=$('#gate'),en=$('#enter');let ent=0,entGo=false,rdy=false;document.body.classList.add('gated');
+function ready(){if(rdy)return;rdy=true;en.disabled=false;en.textContent='Enter universe';en.focus({preventScroll:true})}
+function openGate(fast){if(gate.classList.contains('off'))return;gate.classList.add('off');document.body.classList.remove('gated');entGo=true;if(fast||RM)ent=1;const h=$('#hero button');h&&h.focus({preventScroll:true})}
+en.onclick=()=>openGate(false);$('#skip').onclick=()=>openGate(true);setTimeout(ready,4000);
+addEventListener('keydown',e=>{if(e.key==='Escape')openGate(true)});
+/* arrow keys step through planets while a project panel is open */
+addEventListener('keydown',e=>{if(sel<0||sel>=N)return;if(e.key==='ArrowRight')select((sel+1)%N);if(e.key==='ArrowLeft')select((sel+N-1)%N)});
+/* optional ambient drone (WebAudio, no audio files). Off by default; starts only after the button is pressed; pitch follows journey progress */
+let AC=null,o2=null,snd=false,lastA=0;const sb=$('#snd');
+sb.onclick=()=>{try{if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();const g=AC.createGain(),f=AC.createBiquadFilter(),o1=AC.createOscillator();o2=AC.createOscillator();o1.frequency.value=55;o2.frequency.value=82.4;o2.type='triangle';f.type='lowpass';f.frequency.value=380;g.gain.value=0;o1.connect(f);o2.connect(f);f.connect(g);g.connect(AC.destination);o1.start();o2.start();AC.g=g}
+ snd=!snd;AC.resume();AC.g.gain.setTargetAtTime(snd?.05:0,AC.currentTime,.4);sb.setAttribute('aria-pressed',snd);sb.textContent=snd?'Sound on':'Sound off'}catch(e){sb.disabled=true;sb.textContent='Sound unavailable'}};
+function upd(){const a=Math.min(8,(tT*L)|0),B=document.body;rail.forEach((b,i)=>i===a?b.setAttribute('aria-current','true'):b.removeAttribute('aria-current'));
+ const ex=tT>.985||!GLOK;if(ex!==B.classList.contains('explore')){B.classList.toggle('explore',ex);if(ex){B.classList.add('arrive');setTimeout(()=>B.classList.remove('arrive'),5200)}else if(sel!==-1)overview(0)}}
+if(window.gsap&&window.ScrollTrigger){gsap.registerPlugin(ScrollTrigger);
+ const sync=s=>{tT=s.progress;upd()},tl=gsap.timeline({defaults:{ease:'none'},scrollTrigger:{trigger:'#journey',start:'top top',end:'bottom bottom',scrub:RM?true:.4,onUpdate:sync,onRefresh:sync}});
+ tl.to('#hero',{autoAlpha:0,yPercent:-12,duration:.35},.1);tl.to('#cue',{autoAlpha:0,duration:.2},.05);
+ document.querySelectorAll('.ch').forEach((e,i)=>tl.fromTo(e,{autoAlpha:0,yPercent:14,clipPath:'inset(0 0 100% 0)'},{autoAlpha:1,yPercent:0,clipPath:'inset(0 0 0% 0)',duration:.3},i+.2).to(e,{autoAlpha:0,yPercent:-10,duration:.25},i+.72));
+ tl.to({},{duration:L},0)}
+else addEventListener('scroll',()=>{tT=scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight);upd()},{passive:true});
+let R=null;
+try{R=new THREE.WebGLRenderer({canvas:$('#c'),antialias:innerWidth>760,powerPreference:'high-performance'})}catch(e){R=null}
+if(!R){$('#nogl').style.display='grid';document.body.classList.add('nogl');GLOK=false;upd();ready()}else{
+const mobile=innerWidth<760||/Android|iPhone/i.test(navigator.userAgent);
+R.setPixelRatio(Math.min(devicePixelRatio,mobile?1.5:2));
+let starsPts;const S=new THREE.Scene(),cam=new THREE.PerspectiveCamera(48,1,.5,2000);
+S.add(new THREE.AmbientLight(0x6670aa,.55));
+const sunLight=new THREE.PointLight(0xffe2b0,2.4,0);S.add(sunLight);
+function glowTex(a,b){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d'),r=g.createRadialGradient(64,64,0,64,64,64);r.addColorStop(0,a);r.addColorStop(1,b);g.fillStyle=r;g.fillRect(0,0,128,128);return new THREE.CanvasTexture(c)}
+function tex(a,b,t,s){const c=document.createElement('canvas');c.width=256;c.height=128;const g=c.getContext('2d');let x=s*9973+1;const Rn=()=>(x=(x*16807)%2147483647)/2147483647;g.fillStyle=a;g.fillRect(0,0,256,128);g.fillStyle=b;
+ for(let i=0;i<60;i++){g.globalAlpha=.15+Rn()*.45;
+  if(t=='bands')g.fillRect(0,Rn()*128,256,2+Rn()*9);
+  else if(t=='land'){g.beginPath();g.ellipse(Rn()*256,Rn()*128,6+Rn()*26,4+Rn()*12,Rn()*3,0,7);g.fill()}
+  else if(t=='grid'){g.fillRect(((Rn()*16)|0)*16,((Rn()*16)|0)*8,16,8);if(i<16){g.globalAlpha=.3;g.fillRect(i*16,0,1,128);g.fillRect(0,i*8,256,1)}}
+  else if(t=='crystal'){g.beginPath();g.moveTo(Rn()*256,Rn()*128);g.lineTo(Rn()*256,Rn()*128);g.lineTo(Rn()*256,Rn()*128);g.fill()}
+  else if(t=='pixel')g.fillRect(((Rn()*32)|0)*8,((Rn()*16)|0)*8,8,8);
+  else g.fillRect(Rn()*256,Rn()*128,20+Rn()*70,1.5)}
+ const T=new THREE.CanvasTexture(c);return T}
+/* stars: deterministic, tinted, count adapts to device */
+{const n=2200,p=new Float32Array(n*3),col=new Float32Array(n*3),cs=[[1,1,1],[.6,.9,1],[.75,.65,1],[1,.85,.6]];let x=7;const Rn=()=>(x=(x*16807)%2147483647)/2147483647;
+ for(let i=0;i<n;i++){const u=Rn()*6.283,v=Math.acos(2*Rn()-1),d=300+Rn()*500,c=cs[(Rn()*4)|0];p.set([d*Math.sin(v)*Math.cos(u),d*Math.cos(v),d*Math.sin(v)*Math.sin(u)],i*3);col.set(c,i*3)}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('color',new THREE.BufferAttribute(col,3));
+ starsPts=new THREE.Points(g,new THREE.PointsMaterial({size:1.8,sizeAttenuation:false,vertexColors:true,depthWrite:false,fog:false,transparent:true,opacity:0}));S.add(starsPts)}
+[['rgba(120,60,255,.35)','rgba(120,60,255,0)',[-380,120,-520],900],['rgba(0,200,255,.28)','rgba(0,200,255,0)',[420,-80,-560],900],['rgba(255,60,150,.2)','rgba(255,60,150,0)',[60,260,-640],800]].forEach(([a,b,pos,s])=>{const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex(a,b),blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));sp.position.set(...pos);sp.scale.set(s,s,1);S.add(sp)});
+/* sun */
+const sun=new THREE.Mesh(new THREE.SphereGeometry(5,40,24),new THREE.MeshBasicMaterial({map:tex('#ffb347','#fff2c0','bands',3)}));S.add(sun);
+const corona=new THREE.Mesh(new THREE.SphereGeometry(5.9,32,16),new THREE.MeshBasicMaterial({color:0xff8a3d,transparent:true,opacity:.22,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false}));S.add(corona);
+const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex('rgba(255,200,120,.75)','rgba(255,120,60,0)'),blending:THREE.AdditiveBlending,depthWrite:false}));halo.scale.set(26,26,1);S.add(halo);
+const sunHit=new THREE.Mesh(new THREE.SphereGeometry(6.5,12,8),new THREE.MeshBasicMaterial({visible:false}));sunHit.userData.i=N;S.add(sunHit);
+/* planets */
+const segs=mobile?24:40,sg=new THREE.SphereGeometry(1,segs,segs/2),hitG=new THREE.SphereGeometry(1,10,6),ringG=new THREE.RingGeometry(1.45,2.2,64),moonG=new THREE.SphereGeometry(.28,16,10);
+const orbitPts=[];for(let k=0;k<=128;k++){const a=k/128*6.2832;orbitPts.push(new THREE.Vector3(Math.cos(a),0,Math.sin(a)))}
+const orbitG=new THREE.BufferGeometry().setFromPoints(orbitPts),hits=[sunHit],P=[];
+PROJECTS.forEach((p,i)=>{
+ const rad=p.orbitalDistance,grp=new THREE.Group(),m=new THREE.MeshStandardMaterial({map:tex(p.c[0],p.c[1],p.t,i+1),roughness:.65,metalness:p.id==='velocity'||p.id==='orbit'?.5:.1,emissive:new THREE.Color(p.c[0]),emissiveIntensity:.14});
+ const body=new THREE.Mesh(sg,m);body.scale.setScalar(p.r);grp.add(body);
+ const atm=new THREE.Mesh(sg,new THREE.MeshBasicMaterial({color:p.c[1],transparent:true,opacity:.14,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false}));atm.scale.setScalar(p.r*1.18);grp.add(atm);
+ if(p.ring){const rg=new THREE.Mesh(ringG,new THREE.MeshBasicMaterial({color:p.ring,transparent:true,opacity:.55,side:THREE.DoubleSide,depthWrite:false}));rg.rotation.x=1.2+i*.05;rg.scale.setScalar(p.r);grp.add(rg)}
+ let moon=null;if(p.moon){moon=new THREE.Mesh(moonG,new THREE.MeshStandardMaterial({color:p.moon,emissive:p.moon,emissiveIntensity:.25}));grp.add(moon)}
+ const hit=new THREE.Mesh(hitG,new THREE.MeshBasicMaterial({visible:false}));hit.scale.setScalar(Math.max(p.r*1.9,2.6));hit.userData.i=i;hits.push(hit);grp.add(hit);
+ const ol=new THREE.LineLoop(orbitG,new THREE.LineBasicMaterial({color:p.c[1],transparent:true,opacity:.16}));ol.scale.setScalar(rad);S.add(ol);
+ S.add(grp);P.push({grp,body,atm,m,moon,rad,a:i*.63+.4,w:p.orbitalSpeed??.11/Math.sqrt(rad/10)*.35,r:p.r,spin:.1+i*.02})});
+/* camera controller: one authoritative goal, smoothed every frame */
+const goalPos=new THREE.Vector3(),goalLook=new THREE.Vector3(),look=new THREE.Vector3(),tmp=new THREE.Vector3();
+function goals(){
+ const asp=innerWidth/innerHeight,narrow=innerWidth<=760;
+ if(sel===-1){const k=asp<.8?1.9:1;goalPos.set(0,52*k,84*k);goalLook.set(0,0,0);return}
+ if(sel===N){goalPos.set(0,9,24);goalLook.set(narrow?0:6,narrow?-3:0,0);return}
+ const q=P[sel],r=q.r,pp=q.grp.position,ox=pp.x,oz=pp.z,l=Math.hypot(ox,oz)||1,ux=ox/l,uz=oz/l,d=r*(narrow?5.6:4.4);
+ goalPos.set(pp.x+ux*d,pp.y+r*1.6,pp.z+uz*d);
+ if(narrow)goalLook.set(pp.x,pp.y-r*2.1,pp.z);else goalLook.set(pp.x+uz*r*2.1,pp.y,pp.z-ux*r*2.1)}
+goals();cam.position.copy(goalPos);look.copy(goalLook);
+/* ===== journey worlds: one scene, one spline camera (position + look-at), pure function of scroll progress so reverse scroll retraces the path ===== */
+const CP=[[0,4,1500],[62,16,1420],[30,8,1300],[0,0,1150],[0,2,1040],[-40,24,930],[0,10,800],[0,0,690],[0,0,610],[0,2,540],[0,4,455],[0,12,380],[0,26,300],[0,16,225],[0,24,172],[0,30,142],[0,38,118],[0,46,98],[0,52,84]],
+LK=[[0,0,1380],[0,0,1380],[0,0,1200],[0,0,1000],[0,10,900],[0,0,860],[0,0,700],[0,0,560],[0,0,500],[0,2,420],[0,10,380],[0,38,300],[0,0,230],[0,0,120],[0,0,60],[0,0,0],[0,0,0],[0,0,0],[0,0,0]],
+mkC=a=>new THREE.CatmullRomCurve3(a.map(p=>new THREE.Vector3(...p)),false,'catmullrom',.5),spine=mkC(CP),aim=mkC(LK),
+jp=new THREE.Vector3(),jl=new THREE.Vector3(),exP=goalPos.clone(),
+pal=[0x04050c,0x0a1640,0x1a2a55,0x240a3d,0x0a2a30,0x2b1608,0x053048,0x1a1040,0x05060f].map(c=>new THREE.Color(c)),
+kl=new THREE.DirectionalLight(0x9fd8ff,1.5),camL=new THREE.PointLight(0x9b6bff,1.4,260),J=new THREE.Group(),D=new THREE.Object3D(),
+rnd=(()=>{let x=11;return()=>(x=(x*16807)%2147483647)/2147483647})();
+kl.position.set(.3,.6,1);S.add(kl,camL,J);S.fog=new THREE.FogExp2(0x04050c,.0008);
+let px=0,py=0,dust;addEventListener('pointermove',e=>{px=e.clientX/innerWidth-.5;py=e.clientY/innerHeight-.5},{passive:true});
+const std=(c,e,o)=>new THREE.MeshStandardMaterial({color:c,emissive:e,...o}),
+mk=(g,m,x,y,z)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);J.add(o);return o},
+inst=(g,m,n)=>{const o=new THREE.InstancedMesh(g,m,n);o.frustumCulled=false;J.add(o);return o},
+put=(o,i,x,y,z,s,rx,ry)=>{D.position.set(x,y,z);D.rotation.set(rx,ry,0);D.scale.setScalar(s);D.updateMatrix();o.setMatrixAt(i,D.matrix)},
+addv=m=>{m.blending=THREE.AdditiveBlending;m.transparent=true;m.depthWrite=false;return m},
+glowAt=(a,b,s,x,y,z)=>{const o=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex(a,b),blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));o.scale.set(s,s,1);o.position.set(x,y,z);J.add(o)};
+/* 1 void: obsidian knot + cyan wire core */
+const knot=mk(new THREE.TorusKnotGeometry(16,3.2,160,14),std(0x0b1030,0x2a1070,{metalness:.9,roughness:.28,emissiveIntensity:.5}),0,0,1380),
+core=mk(new THREE.IcosahedronGeometry(7,1),new THREE.MeshBasicMaterial({color:0x3de8ff,wireframe:true,transparent:true,opacity:.5}),0,0,1380);
+glowAt('rgba(61,232,255,.35)','rgba(61,232,255,0)',170,0,0,1340);
+/* 2 portal: three counter-rotating rings + energy disc, camera passes through its center */
+const portal=[[22,.9,0x3de8ff],[16,.6,0x9b6bff],[10,.4,0xffffff]].map(([r,t,c])=>mk(new THREE.TorusGeometry(r,t,12,72),new THREE.MeshBasicMaterial({color:c}),0,0,1150)),
+disc=mk(new THREE.CircleGeometry(21,48),addv(new THREE.MeshBasicMaterial({color:0x6ad0ff,opacity:.3,side:THREE.DoubleSide})),0,0,1150);
+/* 3 floating world: instanced rocks, stone gateway, glowing horizon behind it */
+const rocks=inst(new THREE.DodecahedronGeometry(1,0),std(0x3a4a7a,0x1a2a6a,{roughness:.8,emissiveIntensity:.35,flatShading:true}),70),stone=std(0x1a1f3a,0x0a1a4a,{metalness:.6,roughness:.4,emissiveIntensity:.4});
+for(let i=0;i<rocks.count;i++){let x=(rnd()-.5)*260,y=(rnd()-.5)*110;if(Math.abs(x)<34&&Math.abs(y)<24)x+=x<0?-50:50;put(rocks,i,x,y,800+rnd()*200,3+rnd()*11,rnd()*6,rnd()*6)}
+mk(new THREE.BoxGeometry(7,70,7),stone,-32,-6,850);mk(new THREE.BoxGeometry(7,70,7),stone,32,-6,850);mk(new THREE.BoxGeometry(84,7,7),stone,0,32,850);
+glowAt('rgba(255,170,90,.55)','rgba(255,120,60,0)',520,0,-30,740);
+/* 4 fractured: octahedra that disperse away from the chapter center and reassemble as you reach it */
+const FN=90,frag=inst(new THREE.OctahedronGeometry(1,0),std(0x7a3bff,0xff2a9a,{metalness:.7,roughness:.25,emissiveIntensity:.35,flatShading:true}),FN),fb=[];
+for(let i=0;i<FN;i++){const a=rnd()*6.28,b=Math.acos(2*rnd()-1),d=24+rnd()*46;fb.push([Math.sin(b)*Math.cos(a)*d,Math.cos(b)*d,650+Math.sin(b)*Math.sin(a)*d,1.5+rnd()*5,rnd()*6,rnd()*.6-.3]);put(frag,i,fb[i][0],fb[i][1],fb[i][2],fb[i][3],fb[i][4],fb[i][4])}
+/* 5 cathedral: instanced pillars + arches + light shafts, camera rises through the nave */
+const pm=std(0x14161f,0x5a2a08,{metalness:.85,roughness:.35,emissiveIntensity:.5}),pil=inst(new THREE.BoxGeometry(5,110,5),pm,24),arc=inst(new THREE.BoxGeometry(60,4,4),pm,12),beam=new THREE.PlaneGeometry(10,120),bm=addv(new THREE.MeshBasicMaterial({color:0x7ad8ff,opacity:.1,side:THREE.DoubleSide}));
+for(let i=0;i<12;i++){const z=300+i*12;put(pil,i*2,-28,0,z,1,0,0);put(pil,i*2+1,28,0,z,1,0,0);put(arc,i,0,52,z,1,0,0)}
+for(let i=0;i<5;i++){const b=mk(beam,bm,i%2?9:-9,10,310+i*26);b.rotation.z=i%2?.4:-.4}
+/* 6 ocean: displaced wave plane + luminous floating forms */
+const ocean=mk(new THREE.PlaneGeometry(560,220,mobile?24:44,mobile?16:28),std(0x0a4a8a,0x062a5a,{metalness:.5,roughness:.3,flatShading:true}),0,-45,150),forms=inst(new THREE.SphereGeometry(2.5,10,8),new THREE.MeshBasicMaterial({color:0xbff6ff}),18);
+ocean.rotation.x=-Math.PI/2;
+for(let i=0;i<18;i++){let x=(rnd()-.5)*240;if(Math.abs(x)<22)x+=x<0?-30:30;put(forms,i,x,4+rnd()*36,70+rnd()*180,.6+rnd()*1.2,0,0)}
+/* near-field dust: world-fixed so camera travel gives real parallax against the camera-locked stars */
+{const n=1200,p=new Float32Array(n*3);for(let i=0;i<n;i++)p.set([(rnd()-.5)*140,(rnd()-.5)*90,120+rnd()*1440],i*3);const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));dust=new THREE.Points(g,new THREE.PointsMaterial({color:0xaee9ff,size:1.4,transparent:true,opacity:.7,depthWrite:false}));J.add(dust)}
+/* 5b infinite corridor: receding instanced frames toward a bright vanishing point; fog thickens in this chapter */
+const fh=inst(new THREE.BoxGeometry(44,1.6,1.6),new THREE.MeshBasicMaterial({color:0x3de8ff}),28),fv=inst(new THREE.BoxGeometry(1.6,34,1.6),new THREE.MeshBasicMaterial({color:0x9b6bff}),28);
+for(let i=0;i<14;i++){const z=592-i*9;put(fh,i*2,0,17,z,1,0,0);put(fh,i*2+1,0,-17,z,1,0,0);put(fv,i*2,-22,0,z,1,0,0);put(fv,i*2+1,22,0,z,1,0,0)}
+glowAt('rgba(255,255,255,.5)','rgba(120,200,255,0)',70,0,2,462);
+/* final reality: the Sun seen as a distant star from the first scene; it grows as the camera closes in, then dims so planets stay readable */
+const beacon=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex('rgba(255,214,140,.9)','rgba(255,160,80,0)'),blending:THREE.AdditiveBlending,depthWrite:false,fog:false,transparent:true}));beacon.scale.set(140,140,1);S.add(beacon);
+function journey(now,dt){
+ tS+=(tT-tS)*(RM?1:1-Math.pow(.001,dt));if(Math.abs(tT-tS)<1e-4)tS=tT;
+ const u=tS*L,w=Math.min(1,Math.max(0,(tS-.97)/.03)),a=Math.min(8,u|0);
+ spine.getPoint(tS,jp);aim.getPoint(tS,jl);
+ if(entGo&&ent<1)ent=Math.min(1,ent+dt/3.4);const e3=1-Math.pow(1-ent,3);jp.z+=(1-e3)*(1-Math.min(1,tS*25))*70;jp.x+=Math.sin(now/2600)*(1-e3)*4;ready();
+ if(snd&&o2&&now-lastA>250){lastA=now;o2.frequency.setTargetAtTime(80+tS*90,AC.currentTime,.5)}
+ cam.position.copy(jp).lerp(exP,w);jl.lerp(look,w);cam.lookAt(jl);if(!RM)cam.rotateZ(Math.sin(u*3.14)*.035*(1-w));
+ camL.position.copy(cam.position);camL.intensity=1.4*(1-w);kl.intensity=1.5*(1-w);starsPts.position.copy(cam.position);
+ S.fog.color.lerpColors(pal[a],pal[Math.min(8,a+1)],u-a);R.setClearColor(S.fog.color);S.fog.density=.0008+.0055*Math.max(0,1-Math.abs(u-4.5)*1.1);starsPts.material.opacity=Math.min(1,now/4000);beacon.material.opacity=.12+.88*Math.max(0,1-tS*1.1);
+ J.visible=tS<.995;if(!J.visible)return;
+ knot.rotation.set(py*.5+now/9000,tS*9+px*.6,0);core.rotation.y=-tS*14;
+ const pa=Math.max(0,1-Math.abs(u-1.5)*1.6);portal.forEach((r,i)=>{r.rotation.z+=dt*(.3+i*.25)*(i%2?-1:1);r.scale.setScalar(.7+.3*pa)});disc.material.opacity=.2+.25*pa+.05*Math.sin(now/600);
+ rocks.position.y=Math.sin(now/2200)*1.5;
+ if(Math.abs(u-3.5)<1.3){const sp=1+Math.min(1,Math.abs(u-3.5)*1.2)*1.2;for(let i=0;i<frag.count;i++){const q=fb[i];put(frag,i,q[0]*sp,q[1]*sp,650+(q[2]-650)*sp,q[3],q[4]+now*q[5]/1500,q[4])}frag.instanceMatrix.needsUpdate=true}
+ if(u>5.2){const pp=ocean.geometry.attributes.position;for(let i=0;i<pp.count;i++)pp.setZ(i,Math.sin(pp.getX(i)*.03+now/900)*3+Math.cos(pp.getY(i)*.04+now/1300)*2.5);pp.needsUpdate=true;forms.position.y=Math.sin(now/1700)*2}
+}
+function resize(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+/* picking */
+const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();let hover=-1,moved=false,down=null;const cv=$('#c');
+function pick(e){if(tS<.985)return -1;const r=cv.getBoundingClientRect();ndc.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(ndc,cam);const h=ray.intersectObjects(hits,false);return h.length?h[0].object.userData.i:-1}
+cv.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;const i=pick(e);if(i!==hover){hover=i;cv.style.cursor=i>=0?'pointer':'default';const nm=i<0?'':(i===N?SUN.name:PROJECTS[i].name);tip.textContent=nm;tip.style.opacity=i<0?0:1}
+ tip.style.left=e.clientX+'px';tip.style.top=e.clientY+'px'});
+cv.addEventListener('pointerleave',()=>{hover=-1;tip.style.opacity=0});
+cv.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);
+cv.addEventListener('pointerup',e=>{if(!down)return;const d=Math.hypot(e.clientX-down[0],e.clientY-down[1]);down=null;if(d>8)return;const i=pick(e);if(i>=0)select(i);else if(sel!==-1)overview()});
+/* ===== polish: always-on labels, selection reticle, sun rays, quality tiers with adaptive step-down ===== */
+const labHost=document.createElement('div');labHost.id='labs';labHost.setAttribute('aria-hidden','true');document.body.appendChild(labHost);
+const labs=[...PROJECTS.map(p=>p.name),SUN.name].map(n=>{const e=document.createElement('span');e.textContent=n;labHost.appendChild(e);return e}),lv=new THREE.Vector3(),
+ret=new THREE.Mesh(new THREE.RingGeometry(1.28,1.38,64),new THREE.MeshBasicMaterial({color:0x3de8ff,transparent:true,opacity:0,depthTest:false,side:THREE.DoubleSide}));
+ret.renderOrder=5;S.add(ret);
+function labels(now){const show=tS>.985;labHost.style.opacity=show?1:0;if(!show)return;const W=innerWidth/2,H=innerHeight/2;
+ for(let i=0;i<=N;i++){const pg=i<N?P[i].grp.position:sun.position,r=i<N?P[i].r:5.5;lv.copy(pg);lv.y+=r*1.35;lv.project(cam);
+  labs[i].style.transform=`translate(${(lv.x*W+W)|0}px,${(-lv.y*H+H)|0}px) translate(-50%,-100%)`;labs[i].style.opacity=lv.z>1?0:(sel===-1||sel===i?1:.18)}
+ const q=sel>=0&&sel<N?P[sel]:hover>=0&&hover<N?P[hover]:null;
+ if(q){ret.position.copy(q.grp.position);ret.quaternion.copy(cam.quaternion);ret.scale.setScalar(q.r*1.15);ret.material.opacity=(sel>=0?.85:.45)*(.8+.2*Math.sin(now/300))}else ret.material.opacity=0}
+const rays=new THREE.Sprite(new THREE.SpriteMaterial({map:(()=>{const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');g.translate(128,128);g.strokeStyle='rgba(255,220,160,.55)';for(let i=0;i<12;i++){g.rotate(Math.PI/6);g.lineWidth=i%2?1.5:3;g.beginPath();g.moveTo(10,0);g.lineTo(i%2?90:126,0);g.stroke()}return new THREE.CanvasTexture(c)})(),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.7}));rays.scale.set(34,34,1);S.add(rays);
+const Q=[{n:'Low',dpr:1,st:600,du:300,rk:30,fr:40},{n:'Balanced',dpr:1.5,st:1400,du:700,rk:50,fr:70},{n:'High',dpr:2,st:2200,du:1200,rk:70,fr:90}],qb=$('#qual');
+let qi=mobile?1:2,slow=0,acc=0,nf=0;
+function setQ(i){qi=i;const q=Q[i];R.setPixelRatio(Math.min(devicePixelRatio,q.dpr));resize();starsPts.geometry.setDrawRange(0,q.st);dust.geometry.setDrawRange(0,q.du);rocks.count=q.rk;frag.count=Math.min(FN,q.fr);qb.textContent='Visual quality: '+q.n}
+function perf(dt){acc+=dt;if(++nf<120)return;const avg=acc/nf;acc=0;nf=0;slow=avg>.038&&qi>0?slow+1:0;if(slow>=2){slow=0;setQ(qi-1)}}
+qb.onclick=()=>setQ((qi+1)%3);setQ(qi);
+/* loop */
+let last=performance.now(),t=0;
+function frame(now){requestAnimationFrame(frame);const dt=Math.min((now-last)/1000,.05);last=now;
+ if(!paused)t+=dt;
+ sun.rotation.y+=dt*.05;corona.scale.setScalar(1+Math.sin(now/1500)*.02);rays.material.rotation+=dt*.04;
+ P.forEach((q,i)=>{if(!paused)q.a+=q.w*dt;q.grp.position.set(Math.cos(q.a)*q.rad,Math.sin(q.a*2+i)*.6,Math.sin(q.a)*q.rad);
+  q.body.rotation.y+=dt*q.spin;const on=i===sel||i===hover;q.atm.material.opacity+=((on?.45:.14)-q.atm.material.opacity)*.15;q.m.emissiveIntensity+=((on?.38:.14)-q.m.emissiveIntensity)*.15;
+  if(q.moon){const m=now/1000*.5+i;q.moon.position.set(Math.cos(m)*q.r*2.1,.3,Math.sin(m)*q.r*2.1)}});
+ goals();if(sel===-1&&!RM){goalPos.x+=Math.sin(now/6000)*6;goalPos.y+=Math.cos(now/7000)*2}const k=RM?1:1-Math.pow(.02,dt);exP.lerp(goalPos,k);look.lerp(goalLook,k);journey(now,dt);labels(now);perf(dt);
+ R.render(S,cam)}
+requestAnimationFrame(frame);
+R.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();$('#nogl').style.display='grid'});
+R.domElement.addEventListener('webglcontextrestored',()=>{$('#nogl').style.display='none'});
+}
+</script></body></html>
